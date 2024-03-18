@@ -1,0 +1,131 @@
+---
+title: "MTH6139 Time Series"
+subtitle: "Coursework1_240039822"
+author:
+- name: "Jay Grosfeld"
+date: "March 2024"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r, echo=FALSE}
+htmltools::img(src = knitr::image_uri("QMlogo.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:0; right:0; padding:10px; width:30%;')
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Decomposition of Data
+
+My project will consist of analyzing carbon (CO2) emissions from January 1959 to December 1996. By the end of my analysis, I hope to be able to use decomposition and linear regression to understand seasonality, which is crucial in forecasting these emissions for the future.
+
+### 1.1 Downloading the Data
+
+In order to begin analyzing the data, we first have to create a data frame in R with two columns, ds and y. co2 represents the atmospheric concentrations of CO2 expressed in parts per million (ppm). In the ds column, yearmon represents the time as a year and month, and the y column represents the actual CO2 measurements. This is done with the following command:
+
+```{r}
+co2.df = data.frame(
+  ds=zoo::as.yearmon(time(co2)), 
+  y=co2)
+```
+
+### 1.2 Decomposition
+Once the data is downloaded, we have to decompose it to separate the time series into observed data, trends, seasonality, and random components, allowing us to make insights regarding patterns and accurately forecast. This is done by the following command: 
+
+```{r}
+plot(decompose(co2))
+```
+
+The decomposition of the time series shows the following:
+
+- **Observed:** This is the observed time series data, which exhibits a steady increase of CO2 emissions over time.
+- **Trend:** This depicts a steady long-term increase in CO2 emissions without any significant dips, suggesting that CO2 emissions released into the atmosphere is consistent. This can likely be attributed to the rising global energy demand.
+- **Seasonal:** This illustrates regular annual fluctuations with a consistent cycle of ups and downs, possibly due to energy demand for things such as heating in the winter and cooling during the summer.
+- **Random:** This highlights variations in CO2 emissions that are not able to be explained by the trend or seasonality, due to things such as unexpected environmental incidents or changes in policies that increase or decrease CO2 emissions. The model shows a stable variance, meaning that although there are changes, these changes do not permanently alter CO2 emission trends over an extended period of time.
+
+
+## 2. Linear Regression
+We want to use linear regression to quantify the relationship between CO2 emissions and time to help understand the increase in CO2 levels and predict future levels based on these trends.
+
+### 2.1 Model
+As stated previously, we have to find a linear regression model to help understand the relationship between CO2 emissions and time. This is done by the following command:
+
+```{r}
+model = lm(y ~ ds, data = co2.df)
+```
+
+### 2.2 Graph
+Now that we have the model, we actually want to visualize this relationship. This is done by the following command:
+
+```{r}
+plot(co2.df$ds, co2.df$y, main = "CO2 Emissions from 1959-1996", xlab = "Year", ylab = "CO2 Emissions", pch = 1)
+```
+
+The graph shows CO2 emissions in a time series, with each month's measurement represented by an open circle (pch = 1). The increasing trend of the data shows a linear relationship between CO2 emission levels and time, implying that there is a consistent rise in CO2 in the atmosphere.
+
+## 3. Forecasting
+
+
+### 3.1 Load Prophet 
+To begin forecasting, we have to downlaod Meta's Prophet forecasting system. This is done by the following command:
+
+```{r}
+library(prophet)
+```
+
+### 3.2 Model
+Firstly, we want to craft a model for the co2.df data frame using the prophet function. This is done by the following command:
+
+```{r}
+model = prophet::prophet(co2.df)
+```
+### 3.3 Future
+Now, we are going to be extending the data frame into the future for a certain number of periods (in this case it will be eight) to predict future CO2 emission values. This is done by the following command:
+
+```{r}
+future = prophet::make_future_dataframe(model, periods=8, freq="quarter")
+```
+
+### 3.4 Prediction
+We want to make predictions by calling the model and future data frame, and these forecasted values will be stored in the variable prediction. This can be done by the following command:
+
+```{r}
+prediction = predict(model, future)
+```
+
+
+### 3.4 Plot
+Taking these forecasted values, we will make a plot of the data to help with visualizationing CO2 emissions over time and identifying trends. This can be done by the following command: 
+
+```{r}
+plot(model,prediction)
+```
+
+The graph above forecasts CO2 emissions from 1959-1996 with a clear upward trend over time. Based on this data, Meta's Prophet projects that the trend of increasing emissions will continue in the future.
+
+
+## 4. My CV
+
+### **Education**
+
+**Queen Mary University of London**
+<br>
+Mathematics and Economics BSc  [January 2024-May 2024]{style="float:right"}
+<br>
+*Relevant Modules:* Computer Science, Industrial Economics, Microeconomic Theory, Calculus, Probability, Statistics, Data Analysis, Time Series (Developed time series model for CO2 emissions under R and Meta Prophet)
+
+### **Technology**
+
+- **Python:** data automation, machine learning, data visualization
+- **R:** linear models, time series analysis
+- **Excel:** pivot tables, data analysis expressions (DAX), macro automation
+- Other coding experience: Java, SQL, Swift
+- Word, PowerPoint, Outlook, MacOSX, Windows, Google Slides, Google Docs
+
+
+
